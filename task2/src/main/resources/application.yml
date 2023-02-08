@@ -1,0 +1,10 @@
+spring:
+  kafka:
+    application-name: taxi
+    bootstrap-servers: localhost:9093,localhost:9094,localhost:9095
+    vehicle:
+      traveled-distance-topic: output
+      signals:
+        vehicle-signals-topic: input
+        consumer-group-id: taxi-consumer-group
+
