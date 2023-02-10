@@ -2,7 +2,77 @@ POST http://localhost:8080/v1/taxi/location/send
 Content-Type: application/json
 
 {
-"id":111,
+"id":1,
 "longitude":102.12,
 "latitude":35.1
+}
+
+###
+POST http://localhost:8080/v1/taxi/location/send
+Content-Type: application/json
+
+{
+"id":1,
+"longitude":122.12,
+"latitude":35.1
+}
+
+###
+POST http://localhost:8080/v1/taxi/location/send
+Content-Type: application/json
+
+{
+  "id":2,
+  "longitude":122,
+  "latitude":35
+}
+
+###
+POST http://localhost:8080/v1/taxi/location/send
+Content-Type: application/json
+
+{
+  "id":2,
+  "longitude":152,
+  "latitude":35
+}
+
+###
+POST http://localhost:8080/v1/taxi/location/send
+Content-Type: application/json
+
+{
+  "id":3,
+  "longitude":122,
+  "latitude":35
+}
+
+###
+POST http://localhost:8080/v1/taxi/location/send
+Content-Type: application/json
+
+{
+  "id":3,
+  "longitude":152,
+  "latitude":35
+}
+
+###
+POST http://localhost:8080/v1/taxi/location/send
+Content-Type: application/json
+
+{
+  "id":4,
+  "longitude":122,
+  "latitude":35
+}
+
+###
+POST http://localhost:8080/v1/taxi/location/send
+Content-Type: application/json
+
+{
+  "id":4,
+  "longitude":152,
+  "latitude":35
 }

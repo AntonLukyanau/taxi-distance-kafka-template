@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter;
 public class ConsumerLogger {
     @KafkaListener(
             topics = "${spring.kafka.vehicle.traveled-distance-topic}",
-            concurrency = "3",
+            concurrency = "1",
             groupId = "${spring.kafka.application-name}",
             containerFactory = "vehicleSignalKafkaListenerFactory")
     public void consumeJson(TaxiDistanceInfo distanceInfo) {

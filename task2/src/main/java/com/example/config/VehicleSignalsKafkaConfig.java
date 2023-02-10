@@ -18,8 +18,6 @@ public class VehicleSignalsKafkaConfig {
 
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
-    @Value("${spring.kafka.vehicle.signals.consumer-group-id}")
-    private String consumerGroup;
 
     @Bean
     public ProducerFactory<Long, VehicleSignal> vehicleSignalsProducerFactory() {
