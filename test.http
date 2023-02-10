@@ -2,7 +2,7 @@ POST http://localhost:8080/v1/taxi/location/send
 Content-Type: application/json
 
 {
-"id":1,
-"longitude":100.1,
-"latitude":50.1
+"id":111,
+"longitude":102.12,
+"latitude":35.1
 }

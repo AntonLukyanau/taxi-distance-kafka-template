@@ -2,49 +2,40 @@ package com.example.service;
 
 import com.example.model.TaxiDistanceInfo;
 import com.example.model.VehicleSignal;
-import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.StreamsBuilder;
-import org.apache.kafka.streams.kstream.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.kafka.support.serializer.JsonDeserializer;
-import org.springframework.kafka.support.serializer.JsonSerializer;
-import org.springframework.stereotype.Component;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Service;
 
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component
+@Service
 public class VehicleSignalsKafkaProcessor {
 
-    @Value("${spring.kafka.vehicle.signals.vehicle-signals-topic}")
-    private String vehicleSignalsTopic;
     @Value("${spring.kafka.vehicle.traveled-distance-topic}")
     private String traveledDistanceTopic;
+    private final KafkaTemplate<Long, TaxiDistanceInfo> distanceInfoSender;
 
     private final Map<Long, Double> distanceStorage = new ConcurrentHashMap<>();
     private final Map<Long, VehicleSignal> lastReceivedSignals = new ConcurrentHashMap<>();
 
-    @Autowired
-    public void processSignalsByDistance(StreamsBuilder builder) {
-        KStream<UUID, VehicleSignal> signalsKStream = createVehicleSignalKStream(builder);
-        KStream<UUID, TaxiDistanceInfo> distanceInfoKStream = signalsKStream
-                .mapValues(this::updateTaxiDistanceInfo);
-
-        JsonDeserializer<TaxiDistanceInfo> distanceInfoJsonDeserializer = new JsonDeserializer<>();
-        distanceInfoJsonDeserializer.trustedPackages(TaxiDistanceInfo.class.getPackageName());
-        distanceInfoKStream.to(traveledDistanceTopic,
-                Produced.with(Serdes.UUID(), Serdes.serdeFrom(new JsonSerializer<>(), distanceInfoJsonDeserializer)));
+    public VehicleSignalsKafkaProcessor(
+            @Qualifier("taxiDistanceKafkaSender")
+            KafkaTemplate<Long, TaxiDistanceInfo> distanceInfoSender) {
+        this.distanceInfoSender = distanceInfoSender;
     }
 
-    private KStream<UUID, VehicleSignal> createVehicleSignalKStream(StreamsBuilder builder) {
-        JsonDeserializer<VehicleSignal> jsonDeserializer = new JsonDeserializer<>();
-        jsonDeserializer.trustedPackages(VehicleSignal.class.getPackageName());
-        return builder.stream(
-                vehicleSignalsTopic,
-                Consumed.with(Serdes.UUID(), Serdes.serdeFrom(new JsonSerializer<>(), jsonDeserializer))
-        );
+    @KafkaListener(
+            topics = "${spring.kafka.vehicle.signals.vehicle-signals-topic}",
+            concurrency = "3",
+            groupId = "${spring.kafka.vehicle.signals.consumer-group-id}",
+            containerFactory = "vehicleSignalKafkaListenerFactory")
+    public void consumeJson(VehicleSignal vehicleSignal) {
+        TaxiDistanceInfo taxiDistanceInfo = updateTaxiDistanceInfo(vehicleSignal);
+        System.out.println(Thread.currentThread().getName() + " принял");
+        distanceInfoSender.send(traveledDistanceTopic, taxiDistanceInfo.getId(), taxiDistanceInfo);
     }
 
     private TaxiDistanceInfo updateTaxiDistanceInfo(VehicleSignal vehicleSignal) {

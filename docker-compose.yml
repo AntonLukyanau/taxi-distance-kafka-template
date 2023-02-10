@@ -110,3 +110,8 @@ services:
       
       kafka-topics --bootstrap-server kafka1:29095 --describe
       "
+  java:
+    image: apache/beam_java17_sdk
+    depends_on:
+      - init-kafka
+
